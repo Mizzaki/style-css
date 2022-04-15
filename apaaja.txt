@@ -1,0 +1,90 @@
+--login start--
+<?php 
+    if (isset($_POST['btn'])) {
+        $nik = trim($_POST['nik']);
+        $nama = trim($_POST['nama']);
+        if (!strlen($nik) || !strlen($nama)) {
+            die("silahkan masukan NIK dan Nama Anda");
+        }
+        $sukses = false;
+        $handle = fopen("modul/config.csv","r");
+        while (($data = fgetcsv($handle)) !==false) {
+            if ($data[0]==$nik && $data[1]==$nama) {
+                $sukses = true;
+                break;
+            }
+        }
+        fclose($handle);
+        if ($sukses) {
+            session_start();
+            $_SESSION['nama']=$data[1];
+            header('location:modul/index.php');
+        }else{
+            echo "<br> Maaf Anda Gagal Login.<br>
+            Silahkan Masukan NIK dan Nama anda dengan benar !";
+        }
+    }
+ ?> 
+--login End--
+
+--Register start--
+<?php 
+    if (isset($_POST['btn'])) {
+        $nik = ($_POST['nik']);
+        $nama = ($_POST['nama']);
+        $arrayData = array($nik,$nama);
+        $fp = fopen('config.csv','a+');
+        $input = fputcsv($fp,$arrayData);
+    if ($input) {
+      echo "<h3>Data Berhasil di Input</h3>";
+      echo "<a href='../index.php'><font color=green>Silahkan Login Kembali</a>";
+    }else{
+      echo"<h3>Data Gagal Input</h3>";
+      } 
+    }
+   ?>  
+--register end--
+
+--config php start--
+<?php
+extract($_REQUEST);
+$file=fopen("dataNIK.txt", "a");
+$datastring = "<tr align=center><td>$tanggal</td><td>$waktu</td><td>$lokasi</td><td>$suhu</td></tr>";
+echo $datastring;
+fwrite($file,  $datastring);
+fclose($file);
+header("location: tampil.php"); 
+ ?>
+
+--config php end--
+
+--logout start--
+<?php
+session_start();
+$_SESSION['nama'];
+session_destroy();
+header('location:../index.php') 
+ ?>
+--logout end--
+
+--tampil start--
+<table id="tabel" class="display" style="width:100%">
+		<thead>
+			<tr>
+				<th>Tanggal</th>
+				<th>Waktu</th>
+				<th>Lokasi</th>
+				<th>Suhu</th>
+			</tr>
+		</thead>
+		<tbody align="center">
+			<?php
+			$file=fopen("dataNIK.txt", "r");
+			$datastring = fread($file, 10000);
+			echo $datastring;
+			fclose($file); 
+			 ?>
+		</tbody>
+	</table>
+	<a href="index.php">kembali</a>
+--tampil end--
